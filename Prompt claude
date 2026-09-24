@@ -1,0 +1,16 @@
+Prompt: 
+Tarea: Reemplazar la agenda manual (cuaderno/WhatsApp) por un sistema que:
+1. Muestre de un vistazo qué silla y odontólogo está ocupado en cada franja del día.
+2. Permita crear, editar y cancelar citas sin generar cruces de horario.
+3. Detecte automáticamente conflictos (misma silla, mismo horario).
+4. Dé una lectura rápida de ocupación e inasistencias del día.
+
+Contexto: Mis Sonrisas es una clínica dental de barrio con 2 sillas de atención
+y 2 odontólogos (Dra. Laura Méndez en Silla 1, Dr. Andrés Rojas en Silla 2),
+horario Lun-Vie 8:00-18:00 y Sáb 8:00-13:00.
+
+Restricción de datos: sin sistema previo, así que se simulan 3 meses de citas
+con un patrón realista (más carga en la mañana y al final de la tarde, tasa de
+inasistencia ~13%) para poder diagnosticar el problema antes de construir la
+herramienta.
+
