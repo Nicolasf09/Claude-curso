@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mis Sonrisas — Agenda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1B2430; --ink-soft:#5B6675; --line:#E4E8EC;
+  --bg:#FBFCFC; --panel:#FFFFFF;
+  --mint:#0F7A6C; --mint-bg:#E7F5F1; --mint-line:#BFE3D9;
+  --lav:#6E62D9; --lav-bg:#EEECFB; --lav-line:#D3CDF5;
+  --coral:#E15A4E; --coral-bg:#FBEAE8;
+  --amber:#B8842A; --amber-bg:#FBF2E2;
+  font-family:'Inter',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#EDEFF2; --ink-soft:#9AA4B2; --line:#2A313C;
+    --bg:#12161C; --panel:#181D24;
+    --mint-bg:#123330; --mint-line:#1E5148;
+    --lav-bg:#221F3D; --lav-line:#382F63;
+    --coral-bg:#3A211E; --amber-bg:#332A17;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#EDEFF2; --ink-soft:#9AA4B2; --line:#2A313C;
+  --bg:#12161C; --panel:#181D24;
+  --mint-bg:#123330; --mint-line:#1E5148;
+  --lav-bg:#221F3D; --lav-line:#382F63;
+  --coral-bg:#3A211E; --amber-bg:#332A17;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+header{
+  padding:18px 20px 14px; border-bottom:1px solid var(--line); background:var(--panel);
+  padding-top:calc(18px + env(safe-area-inset-top,0px));
+  display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between;
+}
+.brand{display:flex; align-items:baseline; gap:10px;}
+.brand h1{font-family:'Space Grotesk',sans-serif; font-size:22px; margin:0; font-weight:700; letter-spacing:-.01em;}
+.brand span{color:var(--ink-soft); font-size:13px;}
+.datebar{display:flex; align-items:center; gap:8px;}
+.datebar button{
+  border:1px solid var(--line); background:var(--panel); color:var(--ink); width:34px; height:34px;
+  border-radius:8px; font-size:16px; cursor:pointer; line-height:1;
+}
+.datebar button:hover{background:var(--mint-bg); border-color:var(--mint-line);}
+.datebar input[type=date]{
+  border:1px solid var(--line); border-radius:8px; padding:7px 10px; font-family:'Inter'; font-size:14px;
+  background:var(--panel); color:var(--ink);
+}
+.today-label{font-size:14px; font-weight:600; min-width:160px; text-align:center;}
+.stats{display:flex; gap:10px; padding:14px 20px; flex-wrap:wrap;}
+.stat{
+  background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px 16px; min-width:120px;
+}
+.stat b{display:block; font-family:'Space Grotesk',sans-serif; font-size:20px;}
+.stat span{font-size:12px; color:var(--ink-soft);}
+main{padding:0 20px 32px; max-width:920px; margin:0 auto;}
+.closed{
+  text-align:center; padding:60px 20px; color:var(--ink-soft); font-size:15px;
+}
+.grid{
+  border:1px solid var(--line); border-radius:12px; overflow-x:auto; background:var(--panel);
+}
+table{border-collapse:collapse; width:100%; min-width:520px;}
+th{
+  font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; text-align:left;
+  padding:10px 12px; border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--panel);
+}
+th.silla1{color:var(--mint);} th.silla2{color:var(--lav);}
+td.time{
+  font-size:12px; color:var(--ink-soft); padding:0 10px; white-space:nowrap; border-bottom:1px solid var(--line);
+  width:64px; vertical-align:top; padding-top:8px;
+}
+td.slot{
+  border-bottom:1px solid var(--line); border-left:1px solid var(--line); padding:4px; vertical-align:top; height:44px;
+}
+.empty-slot{
+  width:100%; height:100%; min-height:36px; border:1px dashed transparent; border-radius:8px;
+  background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  color:transparent; font-size:12px;
+}
+.empty-slot:hover{border-color:var(--line); background:var(--bg); color:var(--ink-soft);}
+.appt{
+  border-radius:8px; padding:6px 8px; cursor:pointer; font-size:12.5px; line-height:1.35;
+}
+.appt b{display:block; font-size:13px;}
+.appt.s1{background:var(--mint-bg); border:1px solid var(--mint-line);}
+.appt.s2{background:var(--lav-bg); border:1px solid var(--lav-line);}
+.appt.cancelada, .appt.no-asistio{opacity:.55; text-decoration:line-through;}
+.tag{display:inline-block; font-size:10.5px; padding:1px 6px; border-radius:5px; margin-top:2px; background:rgba(0,0,0,.06);}
+
+.overlay{
+  position:fixed; inset:0; background:rgba(20,24,30,.45); display:none; align-items:flex-end; justify-content:center; z-index:10;
+}
+.overlay.open{display:flex;}
+@media (min-width:560px){ .overlay{align-items:center;} }
+.sheet{
+  background:var(--panel); width:100%; max-width:420px; border-radius:16px 16px 0 0; padding:20px;
+  border:1px solid var(--line); max-height:88vh; overflow-y:auto;
+}
+@media (min-width:560px){ .sheet{border-radius:16px;} }
+.sheet h2{font-family:'Space Grotesk',sans-serif; margin:0 0 4px; font-size:18px;}
+.sheet .sub{color:var(--ink-soft); font-size:13px; margin-bottom:16px;}
+.field{margin-bottom:12px;}
+.field label{display:block; font-size:12.5px; font-weight:600; margin-bottom:5px; color:var(--ink-soft);}
+.field input,.field select{
+  width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:8px; font-size:14px;
+  background:var(--bg); color:var(--ink); font-family:'Inter';
+}
+.row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.sheet-actions{display:flex; gap:8px; margin-top:18px;}
+.btn{
+  flex:1; padding:11px; border-radius:9px; border:1px solid var(--line); background:var(--bg); color:var(--ink);
+  font-size:14px; font-weight:600; cursor:pointer; font-family:'Inter';
+}
+.btn.primary{background:var(--mint); border-color:var(--mint); color:#fff;}
+.btn.danger{background:var(--coral-bg); border-color:var(--coral); color:var(--coral);}
+.err{color:var(--coral); font-size:12.5px; margin-top:8px; display:none;}
+.legend{display:flex; gap:14px; padding:10px 20px 0; font-size:12px; color:var(--ink-soft); flex-wrap:wrap;}
+.legend i{display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:-1px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><h1>Mis Sonrisas</h1><span>Agenda de citas y control de sillas</span></div>
+  <div class="datebar">
+    <button id="prevDay" aria-label="Día anterior">‹</button>
+    <div class="today-label" id="dateLabel">—</div>
+    <button id="nextDay" aria-label="Día siguiente">›</button>
+    <input type="date" id="datePicker">
+  </div>
+</header>
+
+<div class="stats" id="stats"></div>
+<div class="legend">
+  <span><i style="background:var(--mint)"></i>Silla 1 — Dra. Laura Méndez</span>
+  <span><i style="background:var(--lav)"></i>Silla 2 — Dr. Andrés Rojas</span>
+</div>
+
+<main>
+  <div id="gridWrap" class="grid"></div>
+</main>
+
+<div class="overlay" id="overlay">
+  <div class="sheet">
+    <h2 id="sheetTitle">Nueva cita</h2>
+    <div class="sub" id="sheetSub"></div>
+    <div class="field">
+      <label for="fPaciente">Paciente</label>
+      <input id="fPaciente" placeholder="Nombre del paciente">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="fSilla">Silla</label>
+        <select id="fSilla"><option value="1">Silla 1 — Dra. Méndez</option><option value="2">Silla 2 — Dr. Rojas</option></select>
+      </div>
+      <div class="field">
+        <label for="fDuracion">Duración</label>
+        <select id="fDuracion">
+          <option value="20">20 min — Valoración</option>
+          <option value="30" selected>30 min — Limpieza / Extracción</option>
+          <option value="45">45 min — Resina</option>
+          <option value="60">60 min — Blanqueamiento</option>
+          <option value="75">75 min — Endodoncia</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="fTratamiento">Tratamiento</label>
+      <input id="fTratamiento" placeholder="Ej: Limpieza (Profilaxis)">
+    </div>
+    <div class="field">
+      <label for="fEstado">Estado</label>
+      <select id="fEstado">
+        <option value="Programada">Programada</option>
+        <option value="Asistió">Asistió</option>
+        <option value="No asistió">No asistió</option>
+        <option value="Cancelada">Cancelada</option>
+      </select>
+    </div>
+    <div class="err" id="errMsg"></div>
+    <div class="sheet-actions">
+      <button class="btn danger" id="btnDelete" style="display:none">Eliminar</button>
+      <button class="btn" id="btnCancel">Cancelar</button>
+      <button class="btn primary" id="btnSave">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORE_KEY = "mis_sonrisas_agenda_v1";
+const SILLAS = [{n:1,label:"Silla 1",od:"Dra. Laura Méndez"},{n:2,label:"Silla 2",od:"Dr. Andrés Rojas"}];
+let db = {};
+try{ db = JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); }catch(e){ db = {}; }
+
+function save(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(db)); }catch(e){ console.error("No se pudo guardar", e); }
+}
+
+function fmtDate(d){ return d.toISOString().slice(0,10); }
+function todayStr(){ return fmtDate(new Date()); }
+function parseDate(s){ const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); }
+let current = todayStr();
+
+function hoursForDate(dateStr){
+  const dow = parseDate(dateStr).getDay(); // 0=domingo
+  if(dow === 0) return null; // cerrado
+  if(dow === 6) return {start:8, end:13};
+  return {start:8, end:18};
+}
+
+function slotsList(hrs){
+  const out=[];
+  for(let t=hrs.start*60; t<hrs.end*60; t+=30) out.push(t);
+  return out;
+}
+function minToLabel(m){ const h=Math.floor(m/60), mm=m%60; return String(h).padStart(2,"0")+":"+String(mm).padStart(2,"0"); }
+
+function apptsFor(dateStr){ return db[dateStr] || []; }
+
+function renderStats(){
+  const list = apptsFor(current);
+  const activas = list.filter(a=>a.estado!=="Cancelada");
+  const minutos = activas.reduce((s,a)=>s+a.dur,0);
+  const hrs = hoursForDate(current);
+  const capacidad = hrs ? (hrs.end-hrs.start)*60*2 : 0;
+  const ocup = capacidad ? Math.round(100*minutos/capacidad) : 0;
+  const noAsistio = list.filter(a=>a.estado==="No asistió").length;
+  document.getElementById("stats").innerHTML = `
+    <div class="stat"><b>${activas.length}</b><span>Citas del día</span></div>
+    <div class="stat"><b>${ocup}%</b><span>Ocupación de sillas</span></div>
+    <div class="stat"><b>${noAsistio}</b><span>Inasistencias</span></div>
+  `;
+}
+
+function renderGrid(){
+  const wrap = document.getElementById("gridWrap");
+  const hrs = hoursForDate(current);
+  const dl = parseDate(current);
+  document.getElementById("dateLabel").textContent = dl.toLocaleDateString("es-CO",{weekday:"long", day:"numeric", month:"long"});
+  document.getElementById("datePicker").value = current;
+
+  if(!hrs){
+    wrap.innerHTML = `<div class="closed">Clínica cerrada los domingos.</div>`;
+    renderStats();
+    return;
+  }
+  const slots = slotsList(hrs);
+  const list = apptsFor(current);
+  // map: silla -> start minute -> appt (only at its start slot); also mark spanned slots
+  const bySilla = {1:{}, 2:{}};
+  const spanned = {1:new Set(), 2:new Set()};
+  list.forEach(a=>{
+    bySilla[a.silla][a.start] = a;
+    for(let t=a.start+30; t<a.start+a.dur; t+=30) spanned[a.silla].add(t);
+  });
+
+  let html = `<table><thead><tr><th></th><th class="silla1">Silla 1 · Dra. Méndez</th><th class="silla2">Silla 2 · Dr. Rojas</th></tr></thead><tbody>`;
+  slots.forEach(t=>{
+    html += `<tr><td class="time">${minToLabel(t)}</td>`;
+    [1,2].forEach(s=>{
+      if(spanned[s].has(t)){ /* covered by a longer appt above: skip cell content */
+        html += `<td class="slot"></td>`;
+        return;
+      }
+      const a = bySilla[s][t];
+      if(a){
+        const cls = a.estado==="Cancelada" ? "cancelada" : (a.estado==="No asistió" ? "no-asistio" : "");
+        html += `<td class="slot" style="height:${Math.max(1,a.dur/30)*44}px" rowspan="${Math.max(1,a.dur/30)}">
+          <div class="appt s${s} ${cls}" data-id="${a.id}">
+            <b>${escapeHtml(a.paciente)}</b>${escapeHtml(a.tratamiento||"")}
+            <span class="tag">${minToLabel(a.start)}–${minToLabel(a.start+a.dur)}</span>
+          </div>
+        </td>`;
+      } else {
+        html += `<td class="slot"><button class="empty-slot" data-silla="${s}" data-start="${t}">+</button></td>`;
+      }
+    });
+    html += `</tr>`;
+  });
+  html += `</tbody></table>`;
+  wrap.innerHTML = html;
+
+  wrap.querySelectorAll(".empty-slot").forEach(b=>b.addEventListener("click", ()=>openSheet(null, +b.dataset.silla, +b.dataset.start)));
+  wrap.querySelectorAll(".appt").forEach(el=>el.addEventListener("click", ()=>{
+    const a = list.find(x=>x.id===el.dataset.id);
+    openSheet(a);
+  }));
+  renderStats();
+}
+
+function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
+
+// ---- Sheet (modal) ----
+const overlay = document.getElementById("overlay");
+let editingId = null, editingStart = null, editingSilla = null;
+
+function openSheet(appt, silla, start){
+  document.getElementById("errMsg").style.display="none";
+  if(appt){
+    editingId = appt.id; editingSilla = appt.silla; editingStart = appt.start;
+    document.getElementById("sheetTitle").textContent = "Editar cita";
+    document.getElementById("sheetSub").textContent = minToLabel(appt.start)+" – "+SILLAS[appt.silla-1].label;
+    document.getElementById("fPaciente").value = appt.paciente;
+    document.getElementById("fSilla").value = appt.silla;
+    document.getElementById("fDuracion").value = String(appt.dur);
+    document.getElementById("fTratamiento").value = appt.tratamiento||"";
+    document.getElementById("fEstado").value = appt.estado||"Programada";
+    document.getElementById("btnDelete").style.display = "block";
+  } else {
+    editingId = null; editingSilla = silla; editingStart = start;
+    document.getElementById("sheetTitle").textContent = "Nueva cita";
+    document.getElementById("sheetSub").textContent = minToLabel(start)+" – "+SILLAS[silla-1].label;
+    document.getElementById("fPaciente").value = "";
+    document.getElementById("fSilla").value = silla;
+    document.getElementById("fDuracion").value = "30";
+    document.getElementById("fTratamiento").value = "";
+    document.getElementById("fEstado").value = "Programada";
+    document.getElementById("btnDelete").style.display = "none";
+  }
+  overlay.classList.add("open");
+}
+function closeSheet(){ overlay.classList.remove("open"); }
+
+document.getElementById("btnCancel").addEventListener("click", closeSheet);
+overlay.addEventListener("click", e=>{ if(e.target===overlay) closeSheet(); });
+
+document.getElementById("btnDelete").addEventListener("click", ()=>{
+  db[current] = apptsFor(current).filter(a=>a.id!==editingId);
+  save(); closeSheet(); renderGrid();
+});
+
+document.getElementById("btnSave").addEventListener("click", ()=>{
+  const paciente = document.getElementById("fPaciente").value.trim();
+  const silla = +document.getElementById("fSilla").value;
+  const dur = +document.getElementById("fDuracion").value;
+  const tratamiento = document.getElementById("fTratamiento").value.trim();
+  const estado = document.getElementById("fEstado").value;
+  const start = editingStart;
+  const errEl = document.getElementById("errMsg");
+
+  if(!paciente){ errEl.textContent = "Escribe el nombre del paciente."; errEl.style.display="block"; return; }
+
+  const hrs = hoursForDate(current);
+  if(start+dur > hrs.end*60){
+    errEl.textContent = "La duración excede el horario de atención de este día."; errEl.style.display="block"; return;
+  }
+
+  const others = apptsFor(current).filter(a=>a.silla===silla && a.id!==editingId);
+  const conflict = others.some(a=> start < a.start+a.dur && start+dur > a.start );
+  if(conflict){
+    errEl.textContent = "Esa silla ya tiene una cita en ese horario. Elige otro turno u otra silla.";
+    errEl.style.display="block"; return;
+  }
+
+  const list = apptsFor(current);
+  if(editingId){
+    const idx = list.findIndex(a=>a.id===editingId);
+    list[idx] = {...list[idx], paciente, silla, dur, tratamiento, estado, start};
+  } else {
+    list.push({id: crypto.randomUUID? crypto.randomUUID(): String(Date.now()), paciente, silla, dur, tratamiento, estado, start});
+  }
+  db[current] = list;
+  save(); closeSheet(); renderGrid();
+});
+
+document.getElementById("prevDay").addEventListener("click", ()=>{ const d=parseDate(current); d.setDate(d.getDate()-1); current=fmtDate(d); renderGrid(); });
+document.getElementById("nextDay").addEventListener("click", ()=>{ const d=parseDate(current); d.setDate(d.getDate()+1); current=fmtDate(d); renderGrid(); });
+document.getElementById("datePicker").addEventListener("change", e=>{ if(e.target.value){ current=e.target.value; renderGrid(); } });
+
+renderGrid();
+</script>
+</body>
+</html>
